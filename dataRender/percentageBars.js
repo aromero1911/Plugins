@@ -48,6 +48,10 @@
  *        render: $.fn.dataTable.render.percentBar()
  *      } ]
  *    } );
+ *
+ *  @example
+ *    // As render outside of columnDefs.
+ *    ageAvg = $.fn.dataTable.render.percentBar('round', '#FFF', '#269ABC', '#31B0D5', '#286090', 1, 'groove').display(ageAvg, 'display');
  */
 
 jQuery.fn.dataTable.render.percentBar = function(pShape, cText, cBorder, cBar, cBack, vRound, bType) {
@@ -68,22 +72,29 @@ jQuery.fn.dataTable.render.percentBar = function(pShape, cText, cBorder, cBar, c
     styleRule3 += 'border-top-left-radius:4px;border-bottom-left-radius:4px;';
   }
 
-  return function(d, type, row) {
-    //Remove % if found in the value
-    //Round to the given parameter vRound
-    s = parseFloat(d.toString().replace(/\s%|%/g,'')).toFixed(vRound);
-    //Not allowed to go over 100%
-    if(s>100){s=100}
-    
-    // Order, search and type gets numbers
-    if (type !== 'display') {
-      return s;
+  return {
+	  display: function(d, type, row) {
+		  
+      // skip if value is empty
+      if (d == ''){
+        return;
+      }	
+      //Remove % if found in the value
+      //Round to the given parameter vRound
+      s = parseFloat(d.toString().replace(/\s%|%/g,'')).toFixed(vRound);
+      //Not allowed to go over 100%
+      if(s>100){s=100}
+
+      // Order, search and type gets numbers
+      if (type !== 'display') {
+        return s;
+      }
+      if (typeof d !== 'number' && typeof d !== 'string') {
+        return d;
+      }
+
+      //Return the code for the bar
+      return '<div style="'+styleRule1+'"><div style="'+styleRule2+'"><div style="'+styleRule3+'width:'+s+ '%;"></div><div style="width:100%;text-align:center;position:absolute;left:0;top:0;">'+s+'%</div></div></div>';
     }
-    if (typeof d !== 'number' && typeof d !== 'string') {
-      return d;
-    }
-    
-    //Return the code for the bar
-    return '<div style="'+styleRule1+'"><div style="'+styleRule2+'"><div style="'+styleRule3+'width:'+s+ '%;"></div><div style="width:100%;text-align:center;position:absolute;left:0;top:0;">'+s+'%</div></div></div>';
   };
 };
